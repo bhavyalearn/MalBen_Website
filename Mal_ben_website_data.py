@@ -10,8 +10,7 @@ import seaborn as sns  # visualization libraries
 
 ## updated with Github path
 
-
-data = pd.read_csv('../input/malicious-and-benign-websites/dataset.csv')
+data = pd.read_csv('https://raw.githubusercontent.com/bhavyalearn/MalBen_Website/main/Mal_ben_website_data.csv')
 
 data.head()
 
