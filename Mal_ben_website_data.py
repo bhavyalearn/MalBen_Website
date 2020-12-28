@@ -10,7 +10,8 @@ import seaborn as sns  # visualization libraries
 
 ## updated with Github path
 
-data = pd.read_csv('https://raw.githubusercontent.com/bhavyalearn/MalBen_Website/main/Mal_ben_website_data.csv')
+
+data = pd.read_csv('../input/malicious-and-benign-websites/dataset.csv')
 
 data.head()
 
@@ -40,9 +41,14 @@ plt.hist(data['dns_query_times'])
 data['dns_query_times'].fillna(value = data['dns_query_times'].mean(),inplace = True)
 data.isna().sum()
 
+
+
+
 ##content_length also has nan values
 #lets see how the values are distributed first
 plt.hist(data['content_length'])
+
+
 
 #lets see the type of url where content length is NaN
 data[data['content_length'].isna()]['type'].value_counts()
@@ -69,6 +75,7 @@ data = data.drop(data.index.values[1306])
 data = data.reset_index()
 
 data.isna().sum()
+
 
 data.head()
 
@@ -100,6 +107,10 @@ plt.show()
 
 data['charset'].value_counts()
 
+
+
+
+
 #charset column has multiple valuecounts due to different letter cases
 
 #Need to rename values to a single case
@@ -112,7 +123,9 @@ for i in range(len(data)):
     elif data.loc[i,'charset'] == 'iso-8859':
         data.loc[i,'charset'] = 'iso-8859-1'
     
+
 data['charset'].value_counts()
+
 
 data['whois_country'].value_counts()
 
@@ -122,6 +135,8 @@ data['whois_country']= data['whois_country'].replace('United Kingdom','GB')
 data['whois_country']= data['whois_country'].replace('[u\'GB\'; u\'UK\']','GB')
 data['whois_country']= data['whois_country'].replace('UK','GB')
 data['whois_country'].value_counts()
+
+
 
 #replacing countries with less than 6 counts with others
 # also covered 'none' country type 
@@ -145,7 +160,9 @@ data[(data['whois_country']== 'Others') & (data['whois_statepro'] != 'None')].co
 
 data=data.drop(['whois_statepro'],axis=1)
 
+
 from datetime import datetime as dt
+
 
 data[data['whois_regdate']=='None'].count()
 
@@ -157,9 +174,12 @@ data = data.drop(data[['whois_regdate','whois_updated_date']],axis=1)
 data.head()
 
 
+
+
 plt.figure(figsize=(8,10))
 sns.boxplot(x='server_name',y='number_special_characters',data = data,hue = 'type')
 plt.show()
+
 
 plt.figure(figsize=(12,10))
 sns.boxplot(x='type',y='tcp_conversation_exchange',data = data)
@@ -168,6 +188,7 @@ plt.show()
 plt.figure(figsize=(12,10))
 sns.boxplot(x='type',y='dist_remote_tcp_port',data = data)
 plt.show()
+
 
 # prepare the data for modelling
 # first step is to covert all relevant features into 1 and 0s
@@ -190,12 +211,18 @@ print(y_train.shape)
 print(x_test.shape)
 print(y_test.shape)
 
+
 print(x_train.shape[1]) ## 33 is the output
+
 
 # first deep learning model
 ## remember, i have not removed the outliers at this time
 
+
+
 from tensorflow.keras import models, layers
+
+
 
 input_shape = x_train.shape[1]
 
@@ -216,14 +243,18 @@ batch_size= 64
 
 dl_trained_model = dl_model.fit(x_train,y_train,epochs=250,batch_size=batch_size)
 
+
+
 # what is the maximum accuracy achieved? 
 print(max(dl_trained_model.history['accuracy']))
+
 
 #check if the model is predicting class 1 - malacious websites
 
 dl_y_pred = dl_model.predict_classes(x_test)
 print(np.max(dl_y_pred)) # maximum numbers from predicted y list
 ## Oh yes it is! :) 
+
 
 #moment of truth
 
@@ -244,3 +275,26 @@ print('Precision:', precision_score(y_test, dl_y_pred))
 
 ## precision is very low here at < 80 %
 ## need to work on improving this
+
+
+
+
+# deploy random forest
+
+
+from sklearn.ensemble import RandomForestClassifier
+
+
+rf_clf = RandomForestClassifier()
+rf_model = rf_clf.fit(x_train,y_train)
+rf_y_pred = rf_model.predict(x_test)
+
+
+dl_f1 = f1_score(y_test,dl_y_pred)
+rf_f1 = f1_score(y_test,rf_y_pred)
+print("Deep Learning F1 Score",dl_f1)
+print("Random Forest F1 Score",rf_f1)
+
+
+
+
