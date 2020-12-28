@@ -295,6 +295,10 @@ rf_f1 = f1_score(y_test,rf_y_pred)
 print("Deep Learning F1 Score",dl_f1)
 print("Random Forest F1 Score",rf_f1)
 
+print()
 
-
+dl_precision = precision_score(y_test,dl_y_pred)
+rf_precision = precision_score(y_test,rf_y_pred)
+print("Deep Learning F1 Score",dl_precision)
+print("Random Forest F1 Score",rf_precision)
 
